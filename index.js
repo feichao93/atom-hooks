@@ -35,33 +35,51 @@ function resolveBasicInput(input) {
   }
 }
 
-function atomize({ status, value, error }, deferRef) {
+function withRenderer(atom) {
+  const { status, value, error } = atom
+
   const lastRenderRef = useRef(null)
 
   const loading = fn => renderer({ loading: fn })
   const loadingKeep = () => renderer({ loading: KEEP })
   const ready = fn => renderer({ ready: fn })
   const aborted = fn => renderer({ aborted: fn })
-  const toPromise = () => deferRef.current.promise
 
-  const atom = {
-    [ATOM]: true,
-    status,
-    value,
-    error,
+  return {
+    ...atom,
     loading,
     loadingKeep,
     ready,
     aborted,
-    toPromise,
-    useWhenLoading,
-    useWhenReady,
-    useWhenAborted,
   }
 
-  return atom
+  function renderer({ loading, ready, aborted }) {
+    function render() {
+      if (status === 'loading') {
+        if (loading === KEEP) {
+          return lastRenderRef.current
+        }
+        return loading && loading()
+      }
+      if (status === 'ready') {
+        return ready && (lastRenderRef.current = ready(value))
+      }
+      if (status === 'aborted') {
+        return aborted && (lastRenderRef.current = aborted(error))
+      }
+    }
 
-  // region
+    return {
+      render,
+      loading: fn => renderer({ loading: fn, ready, aborted }),
+      loadingKeep: () => renderer({ loading: KEEP, ready, aborted }),
+      ready: fn => renderer({ loading, ready: fn, aborted }),
+      aborted: fn => renderer({ loading, ready, aborted: fn }),
+    }
+  }
+}
+
+function withLifecycleHooks(atom) {
   function useWhenLoading(fn) {
     useEffect(
       () => {
@@ -101,32 +119,26 @@ function atomize({ status, value, error }, deferRef) {
     return atom
   }
 
-  function renderer({ loading, ready, aborted }) {
-    function render() {
-      if (status === 'loading' && loading) {
-        if (loading === KEEP) {
-          return lastRenderRef.current
-        }
-        return loading()
-      }
-      if (status === 'ready' && ready) {
-        return (lastRenderRef.current = ready(value))
-      }
-      if (status === 'aborted' && aborted) {
-        return (lastRenderRef.current = aborted(error))
-      }
-      return null
-    }
-
-    return {
-      render,
-      loading: fn => renderer({ loading: fn, ready, aborted }),
-      loadingKeep: () => renderer({ loading: KEEP, ready, aborted }),
-      ready: fn => renderer({ loading, ready: fn, aborted }),
-      aborted: fn => renderer({ loading, ready, aborted: fn }),
-    }
+  return {
+    ...atom,
+    useWhenLoading,
+    useWhenReady,
+    useWhenAborted,
   }
-  // endregion
+}
+
+function atomize({ status, value, error }, deferRef) {
+  const toPromise = () => deferRef.current.promise
+
+  const atom = {
+    [ATOM]: true,
+    status,
+    value,
+    error,
+    toPromise,
+  }
+
+  return withLifecycleHooks(withRenderer(atom))
 }
 
 function getInitialState(atoms) {
@@ -148,17 +160,15 @@ function getInitialState(atoms) {
 
 function useBasicAtom(fetcher, inputs) {
   const [state, setState] = useState({ status: 'loading' })
-  const needResetLoadingStatus = useRef(false)
   const deferRef = useRef(null)
 
   useEffect(() => {
     deferRef.current = deferred()
     const cancellation = deferred()
 
-    if (needResetLoadingStatus.current) {
+    if (state.status !== 'loading') {
       setState({ status: 'loading' })
     }
-    needResetLoadingStatus.current = true
 
     Promise.race([cancellation.promise, fetcher()])
       .then(value => {
@@ -231,6 +241,26 @@ function useCombinedAtom(...atoms) {
   return atomize(state, deferRef)
 }
 
+function useDeferredAtom(inputs) {
+  const [state, setState] = useState({ status: 'loading' })
+  const deferRef = useRef(null)
+  useEffect(() => {
+    deferRef.current = deferred()
+  }, inputs)
+
+  return {
+    sendValue(value) {
+      setState({ status: 'ready', value })
+      deferRef.current.resolve(value)
+    },
+    sendError(error) {
+      setState({ status: 'aborted', error })
+      deferRef.current.reject(error)
+    },
+    ...atomize(state, deferRef),
+  }
+}
+
 function useAtom(deps, fetcher, inputs) {
   if (typeof deps === 'function') {
     // [deps, fetcher, inputs] = [[], deps, fetcher]
@@ -249,4 +279,4 @@ function useAtom(deps, fetcher, inputs) {
   return useBasicAtom(basicFetcher, basicInputs)
 }
 
-module.exports = { useAtom, useCombinedAtom }
+module.exports = { useAtom, useDeferredAtom, useCombinedAtom }

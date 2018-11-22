@@ -11,6 +11,7 @@
   - [`function useAtom(fetcher: Fetcher, inputs?: any[]): Atom`](#function-useatomfetcher-fetcher-inputs-any-atom)
   - [`function useAtom(dependencies: Atom[], fetcher: Fetcher, inputs?: any[]): Atom`](#function-useatomdependencies-atom-fetcher-fetcher-inputs-any-atom)
   - [`useCombinedAtom(...atoms: Atom[]): Atom`](#usecombinedatomatoms-atom-atom)
+  - [`useDeferredAtom(inputs?: any[]): DeferredAtom`](#usedeferredatominputs-any-deferredatom)
 - [Atom](#atom)
   - [Atom 接口](#atom-%E6%8E%A5%E5%8F%A3)
 - [渲染器](#%E6%B8%B2%E6%9F%93%E5%99%A8)
@@ -33,7 +34,7 @@
 
 ## API
 
-该类库提供了 `useAtom`，`useCombinedAtom` 两个函数。
+该类库提供了 `useAtom`，`useCombinedAtom`，`useDeferredAtom` 这几个函数。
 
 ### `function useAtom(fetcher: Fetcher, inputs?: any[]): Atom`
 
@@ -73,6 +74,10 @@ function Component({ uid }) {
 ### `useCombinedAtom(...atoms: Atom[]): Atom`
 
 根据多个 Atom 中创建一个合并的 Atom（combinedAtom）。当所有的 Atom 均为 ready 时，combinedAtom 的状态才变为 ready，combinedAtom 的值为所有子 Atom 的值构成的数组；当有一个 Atom 出错时，combinedAtom 也进入出错状态；当有一个 Atom 仍处于加载状态时，combinedAtom 也处于加载状态。
+
+### `useDeferredAtom(inputs?: any[]): DeferredAtom`
+
+TODO
 
 ## Atom
 
