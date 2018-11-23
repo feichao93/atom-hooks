@@ -1,8 +1,6 @@
 # atom-hooks
 
-一个简单的、基于 React hooks 特性的异步数据管理工具。
-
-**该工具仍处于早期阶段，请不要用于生产环境，虽然我觉得并没有什么人会用 = =。**
+一个简单的、基于 React hooks 特性的异步数据管理工具。这个工具只是我个人的一项实验性的工作，API 随时可能发生变化，请小心使用。
 
 ## 目录
 
@@ -10,13 +8,12 @@
 - [API](#api)
   - [`function useAtom(fetcher: Fetcher, inputs?: any[]): Atom`](#function-useatomfetcher-fetcher-inputs-any-atom)
   - [`function useAtom(dependencies: Atom[], fetcher: Fetcher, inputs?: any[]): Atom`](#function-useatomdependencies-atom-fetcher-fetcher-inputs-any-atom)
-  - [`useCombinedAtom(...atoms: Atom[]): Atom`](#usecombinedatomatoms-atom-atom)
-  - [`useDeferredAtom(inputs?: any[]): DeferredAtom`](#usedeferredatominputs-any-deferredatom)
+  - [`function useCombinedAtom(...atoms: Atom[]): Atom`](#function-usecombinedatomatoms-atom-atom)
+  - [`function useDeferredAtom(inputs?: any[]): DeferredAtom`](#function-usedeferredatominputs-any-deferredatom)
 - [Atom](#atom)
   - [Atom 接口](#atom-%E6%8E%A5%E5%8F%A3)
 - [渲染器](#%E6%B8%B2%E6%9F%93%E5%99%A8)
   - [渲染器接口](#%E6%B8%B2%E6%9F%93%E5%99%A8%E6%8E%A5%E5%8F%A3)
-- [使用示例](#%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B)
 
 ## 安装
 
@@ -71,13 +68,13 @@ function Component({ uid }) {
 }
 ```
 
-### `useCombinedAtom(...atoms: Atom[]): Atom`
+### `function useCombinedAtom(...atoms: Atom[]): Atom`
 
 根据多个 Atom 中创建一个合并的 Atom（combinedAtom）。当所有的 Atom 均为 ready 时，combinedAtom 的状态才变为 ready，combinedAtom 的值为所有子 Atom 的值构成的数组；当有一个 Atom 出错时，combinedAtom 也进入出错状态；当有一个 Atom 仍处于加载状态时，combinedAtom 也处于加载状态。
 
-### `useDeferredAtom(inputs?: any[]): DeferredAtom`
+### `function useDeferredAtom(inputs?: any[]): DeferredAtom`
 
-TODO
+创建一个 DeferredAtom 对象，该对象包含两个额外的方法用来主动控制 atom 的状态：`sendValue(value)` 使得 atom 主动进入 ready 状态，而 `sendError(erorr)` 则使得 atom 主动进入 aborted 状态。当 atom 处于 ready/abortd 状态时，调用这两个方法不会有任何效果。
 
 ## Atom
 

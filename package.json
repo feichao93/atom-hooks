@@ -6,6 +6,8 @@
   "dependencies": {
     "react": "16.7.0-alpha.0 || 16.7.0-alpha.1 || 16.7.0-alpha.2"
   },
+  "main": "./src/index.js",
+  "typings": "./index.d.ts",
   "devDependencies": {
     "babel-eslint": "^10.0.1",
     "eslint": "^5.8.0",
