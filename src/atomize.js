@@ -25,13 +25,13 @@ function withRenderer(atom) {
         if (loading === KEEP) {
           return lastRenderRef.current
         }
-        return loading && loading()
+        return loading ? loading() : null
       }
       if (status === 'ready') {
-        return ready && (lastRenderRef.current = ready(value))
+        return ready ? (lastRenderRef.current = ready(value)) : null
       }
       if (status === 'aborted') {
-        return aborted && (lastRenderRef.current = aborted(error))
+        return aborted ? (lastRenderRef.current = aborted(error)) : null
       }
     }
 
