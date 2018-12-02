@@ -26,7 +26,7 @@ function invariant(condition, message) {
 
 function resolveBasicInput(input) {
   if (input && input[ATOM]) {
-    return input.status === 'loading'
+    return input.round
   } else {
     return input
   }

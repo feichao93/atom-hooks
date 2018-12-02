@@ -16,7 +16,7 @@ function getInitialState(atoms) {
   } else {
     status = 'loading'
   }
-  return { status, value, error }
+  return { status, value, error, round: 0 }
 }
 
 function useCombinedAtom(...atoms) {
@@ -46,21 +46,21 @@ function useCombinedAtom(...atoms) {
     atom.useWhenReady(() => {
       if (atoms.every(atom => atom.status === 'ready')) {
         const compoundValue = atoms.map(atom => atom.value)
-        setState({ status: 'ready', value: compoundValue })
+        setState({ status: 'ready', value: compoundValue, round: state.round })
         deferRef.current.resolve(compoundValue)
       }
     })
 
     atom.useWhenAborted(error => {
       if (state.status !== 'aborted') {
-        setState({ status: 'aborted', error })
+        setState({ status: 'aborted', error, round: state.round })
         deferRef.current.reject(error)
       }
     })
 
     atom.useWhenLoading(() => {
       if (state.status !== 'loading') {
-        setState({ status: 'loading' })
+        setState({ status: 'loading', round: state.round + 1 })
         deferRef.current = deferred()
       }
     })

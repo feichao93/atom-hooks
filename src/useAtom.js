@@ -4,7 +4,7 @@ const { CANCELLED } = require('./symbols')
 const atomize = require('./atomize')
 
 function useBasicAtom(fetcher, inputs) {
-  const [state, setState] = useState({ status: 'loading' })
+  const [state, setState] = useState({ status: 'loading', round: 0 })
   const deferRef = useRef(null)
 
   useEffect(() => {
@@ -12,7 +12,7 @@ function useBasicAtom(fetcher, inputs) {
     const cancellation = deferred()
 
     if (state.status !== 'loading') {
-      setState({ status: 'loading' })
+      setState({ status: 'loading', round: state.round + 1 })
     }
 
     Promise.race([cancellation.promise, fetcher()])
@@ -20,11 +20,11 @@ function useBasicAtom(fetcher, inputs) {
         if (value === CANCELLED) {
           return
         }
-        setState({ status: 'ready', value })
+        setState({ status: 'ready', value, round: state.round })
         deferRef.current.resolve(value)
       })
       .catch(error => {
-        setState({ status: 'aborted', error })
+        setState({ status: 'aborted', error, round: state.round })
         deferRef.current.reject(error)
       })
 

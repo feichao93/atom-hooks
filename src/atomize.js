@@ -93,7 +93,7 @@ function withLifecycleHooks(atom) {
   }
 }
 
-function atomize({ status, value, error }, deferRef) {
+function atomize({ status, value, error, round }, deferRef) {
   const toPromise = () => deferRef.current.promise
 
   const atom = {
@@ -101,6 +101,7 @@ function atomize({ status, value, error }, deferRef) {
     status,
     value,
     error,
+    round,
     toPromise,
   }
 
