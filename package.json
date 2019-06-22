@@ -1,17 +1,17 @@
 {
   "name": "atom-hooks",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "WTFPL",
   "repository": "https://github.com/shinima/atom-hooks.git",
   "dependencies": {
-    "react": "^16.8.4"
+    "react": "^16.8.6"
   },
   "main": "./src/index.js",
   "typings": "./index.d.ts",
   "devDependencies": {
-    "babel-eslint": "^10.0.1",
-    "eslint": "^5.8.0",
-    "prettier": "^1.14.3"
+    "babel-eslint": "^10.0.2",
+    "eslint": "^6.0.0",
+    "prettier": "^1.18.2"
   },
   "prettier": {
     "printWidth": 100,
